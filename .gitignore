@@ -1,7 +1,17 @@
 .cursor
 node_modules
 .env
+.env.local
+.env.production
 .DS_Store
+*.log
+*.tgz
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Template files (mantener en repo para la charla)
 MCP_PROJECT_TEMPLATE_PROMPT.md
 MCP_BEST_PRACTICES_GUIDE.md
 MCP_PROMPT_STARTER.md

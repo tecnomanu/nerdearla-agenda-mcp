@@ -28,14 +28,7 @@ export async function startHttpServer(registerTools, opts = {}) {
 
     // POST endpoint para mensajes JSON-RPC
     app.post(POST_ENDPOINT, async (req, res) => {
-        console.log('\n=== POST REQUEST DEBUG ===');
-        console.log('URL:', req.url);
-        console.log('Method:', req.method);
-        console.log('Headers:', JSON.stringify(req.headers, null, 2));
-        console.log('Body type:', typeof req.body);
-        console.log('Body:', req.body);
-        console.log('Query params:', req.query);
-        console.log('========================\n');
+        console.log(`[http] POST ${req.url} - ${req.body?.method || 'unknown'}`);
 
         if (!isAuthorized(req)) return res.status(401).end();
         if (!isAllowedOrigin(req)) return res.status(403).end();
@@ -53,7 +46,7 @@ export async function startHttpServer(registerTools, opts = {}) {
         try {
             await transport.handlePostMessage(req, res, req.body);
         } catch (e) {
-            console.error('[mcp:http] handlePostMessage error:', e);
+            console.error('[http] Error:', e.message);
             if (!res.headersSent) {
                 res.status(500).json({ error: 'handlePostMessage failed' });
             }
@@ -62,12 +55,7 @@ export async function startHttpServer(registerTools, opts = {}) {
 
     // SSE endpoint para establecer conexión
     app.get('/sse', async (req, res) => {
-        console.log('\n=== SSE REQUEST DEBUG ===');
-        console.log('URL:', req.url);
-        console.log('Method:', req.method);
-        console.log('Headers:', JSON.stringify(req.headers, null, 2));
-        console.log('Query params:', req.query);
-        console.log('========================\n');
+        console.log(`[http] SSE connection - session: ${req.query.sessionId}`);
 
         if (!isAuthorized(req)) return res.status(401).end();
         if (!isAllowedOrigin(req)) return res.status(403).end();
@@ -104,7 +92,7 @@ export async function startHttpServer(registerTools, opts = {}) {
             // CONECTAR EL TRANSPORT AL SERVIDOR EXISTENTE (no crear nuevo servidor)
             await server.connect(transport);
         } catch (e) {
-            console.error('[mcp:http] connect error:', e);
+            console.error('[http] Connect error:', e.message);
             try {
                 res.end();
             } catch {
@@ -142,7 +130,7 @@ export async function startHttpServer(registerTools, opts = {}) {
                 messages: POST_ENDPOINT,
                 health: '/health'
             },
-            tools: 6,
+            tools: 7,
             sessions: transports.size,
             security: {
                 bearer_required: bearerConfigured,
@@ -161,24 +149,13 @@ export async function startHttpServer(registerTools, opts = {}) {
 
     const port = Number(opts?.port ?? process.env.MCP_PORT ?? process.env.PORT ?? 3000);
     app.listen(port, () => {
-        console.error(`[mcp:http] listening http://localhost:${port}/sse  (POST ${POST_ENDPOINT})`);
+        console.log(`[http] Server ready on http://localhost:${port}`);
     });
 
     function isAuthorized(req) {
         const expected = process.env.MCP_BEARER;
 
-        console.log('\n--- AUTH DEBUG ---');
-        console.log('Expected token configured:', !!expected);
-        console.log('Expected token (first 10 chars):', expected ? expected.substring(0, 10) + '...' : 'none');
-        console.log('Authorization header present:', !!req.headers.authorization);
-        console.log('Authorization header value:', req.headers.authorization);
-        console.log('Bearer header present:', !!req.headers.bearer);
-        console.log('Bearer header value:', req.headers.bearer);
-        console.log('All headers keys:', Object.keys(req.headers));
-        console.log('------------------\n');
-
         if (!expected) {
-            console.log('[mcp:auth] No bearer token configured - allowing all requests');
             return true;
         }
 
@@ -203,24 +180,12 @@ export async function startHttpServer(registerTools, opts = {}) {
         }
 
         if (!token) {
-            console.log('[mcp:auth] No bearer token found in any header format');
+            console.log('[auth] ❌ No token found');
             return false;
         }
 
         const isValid = token === expected;
-
-        console.log('[mcp:auth] Token found via:', headerSource);
-        console.log('[mcp:auth] Token comparison:');
-        console.log('  Received token (first 10 chars):', token.substring(0, 10) + '...');
-        console.log('  Expected token (first 10 chars):', expected.substring(0, 10) + '...');
-        console.log('  Tokens match:', isValid);
-
-        if (!isValid) {
-            console.log('[mcp:auth] Invalid bearer token provided');
-        } else {
-            console.log('[mcp:auth] ✅ Valid bearer token - access granted');
-        }
-
+        console.log(`[auth] ${isValid ? '✅' : '❌'} Token ${isValid ? 'valid' : 'invalid'}`);
         return isValid;
     }
 

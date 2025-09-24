@@ -58,5 +58,13 @@ export const MCP_TOOLS = [
             type: "object",
             properties: {}
         },
+    },
+    {
+        name: "get_cache_info",
+        description: "Obtiene información sobre el estado del cache de datos de la agenda. Muestra cuándo fue la última actualización, cuánto tiempo queda válido y estadísticas del cache.",
+        inputSchema: {
+            type: "object",
+            properties: {}
+        },
     }
 ];

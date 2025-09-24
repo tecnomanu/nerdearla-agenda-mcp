@@ -22,22 +22,22 @@ export class NerdearlaAgendaScraper {
             await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
             await page.setViewport({ width: 1280, height: 720 });
 
-            // Navegación con timeout extendido y menos restrictivo
+            // Navegación optimizada para Docker
+            console.log('[scraper] Loading agenda...');
             await page.goto('https://nerdear.la/agenda/', {
                 waitUntil: 'domcontentloaded',
-                timeout: 60000
+                timeout: 30000
             });
 
-            // Esperar a que se cargue el contenido dinámico con más tiempo
+            // Esperar a que se cargue el contenido dinámico con timeout más corto
             try {
-                await page.waitForSelector('.agenda-full', { timeout: 15000 });
+                await page.waitForSelector('.agenda-full', { timeout: 10000 });
             } catch (selectorError) {
-                console.error('No se encontró .agenda-full, intentando con selectores alternativos...');
                 // Intentar con otros selectores
                 try {
                     await page.waitForSelector('[class*="agenda"]', { timeout: 10000 });
                 } catch {
-                    console.warn('Continuando sin esperar selector específico...');
+                    // Continuar sin selector específico
                 }
             }
 

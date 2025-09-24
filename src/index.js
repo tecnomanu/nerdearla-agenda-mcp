@@ -81,6 +81,16 @@ export function registerTools(server) {
                         }
                     };
                     break;
+                case "get_cache_info":
+                    result = {
+                        cache: agendaService.getCacheInfo(),
+                        system: {
+                            cache_duration: "24 hours",
+                            scraping_strategy: "Full website scraping on first request, then cached results",
+                            performance: "First query: 15-30s (full scraping), Subsequent queries: <100ms (cached)"
+                        }
+                    };
+                    break;
                 default:
                     throw new McpError(
                         ErrorCode.MethodNotFound,
@@ -97,6 +107,7 @@ export function registerTools(server) {
             };
 
         } catch (error) {
+            console.error(`[mcp] Tool ${name} error:`, error.message);
             throw new McpError(
                 ErrorCode.InternalError,
                 `Error ejecutando ${name}: ${error.message}`
@@ -105,7 +116,7 @@ export function registerTools(server) {
     });
 }
 
-const log = (...args) => console.error('[nerdearla-agenda]', ...args);
+const log = (...args) => console.log('[mcp]', ...args);
 
 /**
  * Entry point - determina el transport layer basado en argumentos o variables de entorno

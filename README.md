@@ -1,6 +1,6 @@
 # Nerdearla Agenda - MCP Server
 
-[![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/) [![Version](https://img.shields.io/badge/version-1.1.0-green)](./package.json) [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/) [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE) [![Nerdearla](https://img.shields.io/badge/Nerdearla-2025-red)](https://nerdear.la/)
+[![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/) [![Version](https://img.shields.io/badge/version-1.2.0-green)](./package.json) [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/) [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE) [![Nerdearla](https://img.shields.io/badge/Nerdearla-2025-red)](https://nerdear.la/)
 
 Un servidor **MCP** (Model Context Protocol) que proporciona acceso a la agenda de Nerdearla en tiempo real, siguiendo la [arquitectura MCP oficial](https://modelcontextprotocol.io/docs/learn/architecture).
 
@@ -38,14 +38,39 @@ Este proyecto implementa correctamente la arquitectura MCP con:
 4. **get_next_talk** - Obtiene la próxima charla más cercana. Incluye URL cuando está disponible.
 5. **get_missed_talks** - Obtiene charlas que empezaron pero podrías alcanzar. Incluye URLs cuando están disponibles.
 6. **get_best_talk_recommendation** - Proporciona una recomendación experta sobre la charla más destacada del evento 🎯
+7. **get_cache_info** - Información del sistema de cache inteligente (24 horas de duración)
 
 ### 🎪 Easter Egg
 
 ¿Buscas la mejor charla de Nerdearla? Prueba la herramienta `get_best_talk_recommendation` y descubre nuestra recomendación especial... 😉
 
+### ⚡ Sistema de Cache Inteligente
+
+El MCP Server implementa un sistema de cache avanzado para máximo rendimiento:
+
+-   **🚀 Inicialización Automática**: Al arrancar el servidor, hace scraping completo automáticamente
+-   **⏰ Cache de 24 Horas**: Los datos se mantienen válidos por 24 horas
+-   **⚡ Respuestas Instantáneas**: Todas las consultas responden en <100ms después del cache inicial
+-   **🔄 Renovación Automática**: Después de 24h, se actualiza automáticamente en la siguiente consulta
+-   **🛡️ Fallback Inteligente**: Si falla el scraping, usa cache anterior disponible
+
+```bash
+# Al arrancar el servidor:
+[agenda-service] 🚀 Initializing MCP Server - Starting initial cache...
+[agenda-service] ✅ Initial cache ready! Scraped 45 talks in 8500ms
+[agenda-service] ⚡ MCP Server ready - All queries will be INSTANT for 24 hours!
+
+# En consultas posteriores:
+[agenda-service] ⚡ Using cached data (15min old, 23h left) - INSTANT response!
+```
+
 ## 📦 Instalación
 
 ```bash
+# Instalar pnpm si no lo tienes
+npm install -g pnpm
+
+# Instalar dependencias
 pnpm install
 ```
 
@@ -177,6 +202,7 @@ src/
 -   **HTTP Features**: Health checks, CORS, autorización Bearer token opcional
 -   **Session Management**: Manejo de sesiones SSE con cleanup automático
 -   **Scraping Inteligente**: Puppeteer para contenido dinámico de React SPA
+-   **Cache Inteligente**: Inicialización automática al arrancar + cache de 24 horas para respuestas instantáneas
 -   **Timezone GMT-3**: Manejo correcto de hora argentina
 -   **Variables de Entorno**: Configuración flexible con `MCP_TRANSPORT`, `MCP_PORT`, etc.
 
@@ -215,6 +241,8 @@ src/
 
 ## 🚀 Build y Distribución
 
+### Node.js
+
 ```bash
 # Crear paquete
 pnpm build
@@ -226,6 +254,39 @@ pnpm install:global
 npx nerdearla-agenda-mcp
 npx nerdearla-agenda-mcp http
 ```
+
+### 📦 Releases
+
+**Versión Actual: v1.2.0** - Sistema de Cache Inteligente
+
+-   ⚡ **Cache automático al arrancar**: Respuestas instantáneas desde el primer momento
+-   🕒 **Cache de 24 horas**: Máximo rendimiento con renovación automática
+-   🐳 **Docker optimizado**: Migración a pnpm y configuración mejorada
+-   🛠️ **Nueva herramienta**: `get_cache_info` para monitoreo del sistema
+-   🔗 **URLs incluidas**: Enlaces a charlas cuando están disponibles
+
+Ver [CHANGELOG.md](./CHANGELOG.md) para historial completo de versiones.
+
+### 🐳 Docker
+
+```bash
+# Ejecutar con Docker Compose (Recomendado)
+docker-compose up --build
+
+# Ejecutar en background
+docker-compose up -d --build
+
+# Solo Docker
+docker build -t nerdearla-agenda-mcp .
+docker run -p 3000:3000 nerdearla-agenda-mcp
+
+# Con autenticación
+docker run -p 3000:3000 \
+  -e MCP_BEARER=mi-token-secreto \
+  nerdearla-agenda-mcp
+```
+
+Ver **[DOCKER_GUIDE.md](./DOCKER_GUIDE.md)** para configuración avanzada.
 
 ## 🆚 Transport Layers
 

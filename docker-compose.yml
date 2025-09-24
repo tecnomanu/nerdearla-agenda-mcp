@@ -1,0 +1,78 @@
+# Docker Compose para Nerdearla Agenda MCP Server
+# Charla: "Automatizá con flow: IA, n8n y MCP sin morir en el intento"
+# Speakers: Manuel Bruña & Carlos Pereyra
+
+version: '3.8'
+
+services:
+    nerdearla-agenda-mcp:
+        build: .
+        container_name: nerdearla-agenda-mcp
+        restart: unless-stopped
+        ports:
+            - '${MCP_PORT:-3000}:${MCP_PORT:-3000}'
+        environment:
+            # === CONFIGURACIÓN PRINCIPAL ===
+            - NODE_ENV=production
+            - MCP_TRANSPORT=http
+            - MCP_PORT=${MCP_PORT:-3000}
+            - PORT=${MCP_PORT:-3000}
+
+            # === AUTENTICACIÓN (OPCIONAL) ===
+            # Descomenta y configura si quieres autenticación Bearer
+            # - MCP_BEARER=${MCP_BEARER}
+
+            # === CONFIGURACIÓN TÉCNICA ===
+            - MCP_BODY_LIMIT=${MCP_BODY_LIMIT:-1mb}
+            - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+            - LOG_LEVEL=${LOG_LEVEL:-info}
+
+            # === PUPPETEER ===
+            - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+            - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+        # Recursos limitados para evitar consumo excesivo
+        deploy:
+            resources:
+                limits:
+                    memory: 512M
+                    cpus: '0.5'
+                reservations:
+                    memory: 256M
+                    cpus: '0.25'
+
+        # Health check
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'wget',
+                    '--no-verbose',
+                    '--tries=1',
+                    '--spider',
+                    'http://localhost:${MCP_PORT:-3000}/health',
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 10s
+
+        # Logs configuration
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '10m'
+                max-file: '3'
+
+        # Labels para identificación
+        labels:
+            - 'com.nerdearla.mcp.version=1.2.0'
+            - 'com.nerdearla.mcp.description=Servidor MCP para agenda de Nerdearla'
+            - 'com.nerdearla.mcp.speakers=Manuel Bruña & Carlos Pereyra'
+            - 'com.nerdearla.mcp.charla=Automatizá con flow: IA, n8n y MCP sin morir en el intento'
+
+# Red personalizada (opcional)
+networks:
+    default:
+        name: nerdearla-mcp-network
+        driver: bridge

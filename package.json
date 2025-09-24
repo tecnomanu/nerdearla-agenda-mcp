@@ -1,6 +1,6 @@
 {
 	"name": "nerdearla-agenda-mcp",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "Servidor MCP y HTTP para consultar la agenda de Nerdearla",
 	"type": "module",
 	"main": "src/index.js",

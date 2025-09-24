@@ -1,0 +1,7 @@
+.cursor
+node_modules
+.env
+.DS_Store
+MCP_PROJECT_TEMPLATE_PROMPT.md
+MCP_BEST_PRACTICES_GUIDE.md
+MCP_PROMPT_STARTER.md

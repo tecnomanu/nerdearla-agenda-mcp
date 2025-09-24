@@ -1,0 +1,13 @@
+{
+	"mcpServers": {
+		"nerdearla-agenda-mcp": {
+			"command": "node",
+			"args": [
+				"/Volumes/SSDT7Shield/proyectos_varios/nerdearla-charla/mpc-final/src/index.js"
+			],
+			"env": {
+				"NODE_ENV": "production"
+			}
+		}
+	}
+}

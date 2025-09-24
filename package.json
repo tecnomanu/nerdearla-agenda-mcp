@@ -1,0 +1,54 @@
+{
+	"name": "nerdearla-agenda-mcp",
+	"version": "1.1.0",
+	"description": "Servidor MCP y HTTP para consultar la agenda de Nerdearla",
+	"type": "module",
+	"main": "src/index.js",
+	"bin": {
+		"nerdearla-agenda-mcp": "./src/index.js"
+	},
+	"files": [
+		"src"
+	],
+	"scripts": {
+		"start": "node src/index.js",
+		"start:http": "MCP_TRANSPORT=http node src/index.js",
+		"dev": "node --watch src/index.js",
+		"dev:http": "MCP_TRANSPORT=http node --watch src/index.js",
+		"build": "npm pack",
+		"install:global": "npm run build && npm install -g ./nerdearla-agenda-mcp-*.tgz",
+		"inspector": "npx @modelcontextprotocol/inspector npx nerdearla-agenda-mcp"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.0.1",
+		"puppeteer": "^24.10.2",
+		"moment-timezone": "^0.5.43",
+		"express": "^4.19.2",
+		"dotenv": "^16.3.1"
+	},
+	"keywords": [
+		"mcp",
+		"model-context-protocol",
+		"nerdearla",
+		"agenda",
+		"scraping",
+		"claude",
+		"n8n",
+		"automation",
+		"ai",
+		"typescript",
+		"nodejs",
+		"http",
+		"api"
+	],
+	"author": "Manuel Bruña & Carlos Pereyra",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tecnomanu/nerdearla-agenda-mcp.git"
+	},
+	"homepage": "https://nerdear.la/agenda/automatiza-con-flow-ia-n8n-y-mcp-sin-morir-en-el-intento/",
+	"bugs": {
+		"url": "https://github.com/tecnomanu/nerdearla-agenda-mcp/issues"
+	}
+}
